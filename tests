@@ -1,0 +1,303 @@
+// Trees.cpp : This file contains the 'main' function. Program execution begins and ends there.
+#include "AVL.h"
+#include <algorithm>
+#include <map>
+#include <numeric>
+#include <chrono>
+#include <iomanip>
+#include <cmath>
+#include <iostream>
+#define tree std::map
+//#define tree mapavl
+using namespace std;
+class timer
+{
+public:
+    timer() { beg = std::chrono::high_resolution_clock::now(); }
+
+    ~timer() {
+        end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<float> dur = end - beg;
+        std::cout //<<std::endl<<"time is "
+            << std::setiosflags(std::ios::fixed)
+            << std::setiosflags(std::ios::showpoint)
+            << std::setprecision(6)
+            << dur.count() << std::endl;
+    }
+private:
+    std::chrono::time_point<std::chrono::steady_clock> beg, end;
+};
+
+void speed();
+void functionality();
+int main() {
+    //functionality();
+    speed();
+    return 0;
+}
+
+void functionality() {
+    const unsigned long MAX = 16;
+    //timer t;
+    
+    mapavl<int, int > mavl;// { make_pair(89, 0), make_pair(1, 2) };
+    int temp;
+    int stemp;
+    {
+        timer t;
+        for (int i = 1; i < MAX; ++i) {
+            temp = i;// rand();// % 10;
+            stemp = rand() % 10;
+            //mavl.insert(make_pair(temp, stemp));
+            mavl.emplace(i, rand()%10);
+        }
+        mavl.emplace(42, 320);
+        mavl.insert(std::make_pair(8, 8));
+        cout << "emplace time :";
+        mapavl<int, int>::iterator it = mavl.begin();
+        ++it;
+        it++;
+        it--;
+    }
+    cout << "the amount of elements: "<< mavl.count() << '\n';
+    //mavl.clear();
+
+    cout << "the hight of the tree: " << mavl.height()<<'\n';
+
+
+    cout << "the keys: ";
+    pair<mapavl<int,int>::iterator,mapavl<int,int>::iterator> p =mavl.equal_range(8);
+    cout << "lower: " <<'[' << (*(p.first)).first <<']' << " --  upper: [" << (*(p.second)).first <<']' << '\n';
+
+
+    cout << "find the value of 8(it's 1): "<<(*mavl.find(8)).second << '\n';
+
+
+    cout << "contains 666: " << (mavl.contains(666)?"true": "false") << '\n';
+
+
+    auto minmax = mavl.minmax_el();
+    cout << "min/max elments: " << '[' << (*minmax.first).first << ']' << " -- " 
+        << '[' << (*minmax.second).first << ']' << '\n';
+    for_each(mavl.begin(), mavl.end(), [](pair<int, int> p) {
+        cout << '[' << p.first << ']' << ' '; }); cout << '\n';
+
+    cout << "delete elements:\n";
+    cout << "delete 8: ";
+    mavl.erase(8);
+    for_each(mavl.begin(), mavl.end(), [](pair<int, int> p) {
+        cout << '[' << p.first << ']' << ' '; }); cout << '\n';
+
+
+    cout << "delete 12: ";
+    mavl.erase(12);
+    for_each(mavl.begin(), mavl.end(), [](pair<int, int> p) {
+        cout << '[' << p.first << ']' << ' '; }); cout << '\n';
+
+
+    cout << "clear: \n";
+    mavl.clear();
+    for_each(mavl.begin(), mavl.end(), [](pair<int, int> p) {
+        cout << '[' << p.first << ']' << ' '; }); cout << '\n';
+    cout << "it's empty: " << (mavl.empty() ? "true": "false")<<'\n';
+
+    {
+        cout << "operator = (rvalue)(2x):\n";
+        mapavl<int, int> temp(make_pair(618,90));
+        temp = mapavl<int, int>{ make_pair(81,rand() % 10),make_pair(85,rand() % 10),make_pair(80,rand() % 10), };
+        mavl = std::move(temp); 
+    }
+    
+    for_each(mavl.begin(), mavl.end(), [](pair<int, int> p) {
+        cout << '[' << p.first << ']' << ' '; }); cout << '\n';
+
+    cout << "operator = (lvalue - makes an actual copy): \n";
+    mapavl<int, int> mavl_copy;
+    mavl_copy= mavl;
+    {
+        cout << "constructor (rvalue): "; 
+        {
+            //for example, if we don't need mavl_copy to exist anymore
+            mapavl<int, int> temp = std::move(mavl_copy);
+           // mavl = std::move(temp);
+
+        }
+        //no, the compiler creates a temporary obj., sees that it's temporary,
+        //and doesn't copy this obj.,it says that temp is this obj. 
+        mapavl<int, int> temp = mapavl<int, int>{ make_pair(1,1),make_pair(2,2) };
+    }
+    {
+
+        cout << "swap: ";
+        mapavl<int, int> temp(make_pair(1, 1), make_pair(2, 2), make_pair(3, 3),
+                              make_pair(4, 4), make_pair(5, 5), make_pair(6, 6));
+        mavl.swap(temp);
+        for_each(mavl.begin(), mavl.end(), [](pair<int, int> p) {
+            cout << '[' << p.first << ']' << ' '; }); cout << '\n';
+
+
+        cout << "merge: ";
+        mavl.merge(mapavl<int, int> (make_pair(541, 1), make_pair(92, 2), make_pair(113, 3),
+            make_pair(41, 4), make_pair(51, 5), make_pair(61, 6)));
+        for_each(mavl.begin(), mavl.end(), [](pair<int, int> p) {
+            cout << '[' << p.first << ']' << ' '; }); cout << '\n';
+
+        cout << "merge &&: ";
+        mavl.merge(temp);
+        cout << "operator = (lvalue): \n";
+        mavl = temp;
+        for_each(mavl.begin(), mavl.end(), [](pair<int, int> p) {
+            cout << '[' << p.first << ']' << ' '; }); cout << '\n';
+
+    }
+    cout << "insert: ";
+    for (int i = 1; i < MAX; ++i) {
+        temp = i;// rand();// % 10;
+        stemp = rand() % 10;
+        //mavl.insert(make_pair(temp, stemp));
+        mavl.insert(make_pair(i, rand() % 10));
+    }
+    for_each(mavl.begin(), mavl.end(), [](pair<int, int> p) {
+        cout << '[' << p.first << ']' << ' '; }); cout << '\n';
+    cout << "iterator: begin, end, !=, * : ";
+    for (auto& el : mavl)
+        cout << '[' << el.first << ']' << ' ';
+    cout << '\n';
+
+
+    cout << "reverse_iterator: rbegin, rend, !=, * : ";
+    mapavl<int, int>::reverse_iterator rev = mavl.rbegin();
+    for (; rev != mavl.rend(); ++rev) 
+        cout << '[' << (*rev).first << ']' << ' ';
+
+    mapavl<int, int>::const_iterator cons = mavl.begin()++;
+    cout << "const_iterator: " << (* cons).first <<" -- "<<(*cons).second << '\n';
+    
+    cout << "operator [ 8 ]: "<<mavl[8]<<'\n';
+    mavl[8] = 7;
+    cout << "operator [ 8 ]: " << mavl[8] << '\n';
+    {
+        const mapavl<int, int> temp = mavl;
+        //temp[8] = 8;
+    }
+
+    auto max_ = std::max_element(mavl.begin(), mavl.end());
+    auto minmax_elements_alg = std::minmax_element(mavl.begin(), mavl.end());
+
+    int accum = std::accumulate(mavl.begin(), mavl.end(), 0, [](int a, pair<int, int> p) {return a+1; });
+
+    //auto fin = find(mavl.begin(), mavl.end(), 12);
+    //int countif = count_if(mavl.begin(), mavl.end(), [&](std::pair<int, int> p1) {return true; });
+    //bool eq = equal(mavl.begin(), mavl.end(), v.begin());
+    //int ar[80];
+    //transform(mavl.begin(), mavl.end(), ar, [&](pair<int, int>p) {return p.second; } );
+   
+   
+    cout << endl;
+    //for_each(mavl.begin(), mavl.end(), [](pair<int, int> p) {
+        //cout <<'['<< p.first << " -- " << p.second << ']' << '\n'; });
+ 
+    
+
+    cout << "*********************____GAME_IS_OVER____*********************\n\n";
+}
+
+void speed() {
+    //srand(time(NULL));
+    const unsigned long MAX = 16'000'000;
+    timer t;
+    tree<int, int> mavl;// { make_pair(89, 0), make_pair(1, 2) };
+    int temp;
+    int stemp;
+    {
+        timer t;
+        for (int i = 1; i < MAX; ++i) {
+            temp = i;// rand();// % 10;
+            stemp = rand();// % 10;
+            //mavl.insert(make_pair(temp, stemp));
+            mavl.emplace(temp, stemp);
+        }
+        cout << "emplace time :";
+    }
+    {
+        timer t;
+        for (auto& pair_ : mavl) {
+            if (pair_.second % 42 == 0) {
+    
+                //cout << pair_.first << ' ' << pair_.second << '\n';
+            }
+        }
+        cout << "iterator time :";
+    
+    }
+    {
+        timer t;
+        for (int i = 0; i < 300003; ++i) {
+            if (mavl[i] % 618) {
+                //cout << mavl[i] << '\n';
+                mavl[i] = 0;
+            }
+        }
+        cout << "[ ] time :";
+
+    }
+    {
+        timer t;
+        tree<int, int> rival{ make_pair(4242, 8989), make_pair(0, 0), make_pair(-90,-90) };
+        mavl = rival;
+        cout << "lvalue =  time :";
+
+    }
+    
+    {
+        timer t;
+        mavl = tree<int, int>{ make_pair(3, 33333333), make_pair(2, 222222222222), make_pair(-9,-99999990) };
+        cout << "rvalue =  time :";
+    }
+
+    {
+        timer t;
+        for(int i = 10000;i<MAX;++i) {
+            mavl.insert(make_pair(i, i + 1));
+        }
+        cout << "insert time :";
+    }
+    //for_each(mavl.begin(), mavl.end(), [](auto p) {cout << p.first << ' '; }); cout << endl;
+
+    {
+        timer t;
+        for (int i = 0; i < 200000; ++i)
+            mavl.equal_range(i * 4);
+        cout << "lower&&upper_bound time: ";
+    }
+    //for_each(mavl.begin(), mavl.end(), [](auto p) {cout << p.first << ' '; }); cout << endl;
+
+    {
+        timer t;
+        for (int i = 0; i < 200000; ++i)
+            mavl.find(i * 4);
+        cout << "find time: ";
+    }
+    //for_each(mavl.begin(), mavl.end(), [](auto p) {cout << p.first << ' '; }); cout << endl;
+
+    {
+        timer t; for (int i = 0; i < 200000; ++i)
+            mavl.erase(i);
+        cout << "erase time: ";
+    }
+
+
+    {
+        timer t;
+        tree<int, int> tr;
+        for (int i = 0; i < 20; ++i)
+            tr.emplace(i,i);
+        mavl.merge(tr);
+        cout << "merge time: ";
+    }
+   
+   // for_each(mavl.begin(), mavl.end(), [](pair<int, int> p) {
+   // cout << p.first << ' ' << p.second << '\n'; });
+    cout << "\nTime: ";
+}
+
