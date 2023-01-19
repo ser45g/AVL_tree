@@ -27,4 +27,6 @@ merge time: 0.000186
 Time: 50.862938
 _____________________________________________
 
-but mapavl doesn't work with more than a half algorithms from <algorithm>, and I don't know ho to fix this. And it's really raw, i didn't test it very much 
+but mapavl doesn't work with more than a half algorithms from 
+<algorithm>, and I don't know ho to fix this. 
+ And it's really raw, i didn't test it very much 
